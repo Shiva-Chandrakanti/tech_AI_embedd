@@ -8,7 +8,7 @@ import sys,os
 from datetime import datetime
 import db_service_launcher
 
-CONFIG_FILE_PATH = "/Users/administrator/Documents/Open_AI_query_pg/Open_AI_Embedd/config"
+CONFIG_FILE_PATH = "/Users/administrator/Documents/tech_ai_embeddings/tech_AI_embedd/base_query_app/config"
 CONFIG_FILE_NAME = 'config_file'
 CON_ENVIRONMENT = 'DEVELOPMENT'
 
@@ -26,7 +26,7 @@ app = my_api.app
 def bot():
     requested_payload = my_api.request_maker(method='POST')
     question= requested_payload['query']
-    data = app_launch.get_response(payload=requested_payload)
+    data = app_launch.get_response(query=question)
     app_response = my_api.json_response(data=data)
     
     return app_response

@@ -4,6 +4,10 @@ from werkzeug.utils import secure_filename
 import os
 import PyPDF2
 from sentence_transformers import SentenceTransformer
+from langchain.document_loaders import TextLoader
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.embeddings import OpenAIEmbeddings
+from langchain.vectorstores.pgvector import PGVector
 
 class inser_data_db():
     def __init__(self,config,db_launch):
@@ -14,10 +18,27 @@ class inser_data_db():
         return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'txt', 'pdf', 'csv'}
     
     def generate_embeddings(self,text):
-        # Generate embeddings for the input text
-        model = SentenceTransformer('all-MiniLM-L6-v2')
-        embedding = model.encode(text)
-        return embedding
+        try:
+            # # Generate embeddings for the input text
+            # model = SentenceTransformer('all-MiniLM-L6-v2')
+            # embedding = model.encode(text)
+            # return embedding
+            loader = TextLoader(text,encoding='utf-8')
+            documents =loader.load()
+            textsplitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+            texts=textsplitter.split_documents(documents)
+
+            embeddings=OpenAIEmbeddings()
+            
+            vector_data=embeddings.embed_dcouments([t.page_content for t in texts])
+            db_details=self.config['AML_POSTGRES']
+            conn_str=f"postgresql+psycopg2://{db_details['database']}:{db_details['host']}:{db_details['port']}/{db_details['database']}"
+
+            inser_data=PGVector.from_documents(embedding=embeddings,documents=texts,collection_name=self.config['EMBEDIING_data']['table_name'],connection_string=conn_str)
+            return {"successfully inserted"}
+        except Exception as err:
+            print("error while creating embeddings and inserting :",err)
+            return "error while creating embeddings and inserting :"+str(err)
 
     def read_file(self,filepath):
         extension = filepath.rsplit('.', 1)[1].lower()
@@ -58,7 +79,7 @@ class inser_data_db():
             embeddings = self.generate_embeddings(content)
 
             # Insert into PostgreSQL (example function call)
-            self.db_launch.query_execute(q_type = "embed_insert",embedding=embeddings,insert_db=self.config['EMBEDIING_data']['database'],insert_table=['EMBEDIING_data']['table_name'])
+            # self.db_launch.query_execute(q_type = "embed_insert",embedding=embeddings,insert_db=self.config['EMBEDIING_data']['database'],insert_table=self.config['EMBEDIING_data']['table_name'])
             os.remove(filepath)
 
             return {'message': 'File uploaded successfully'}

@@ -3,10 +3,21 @@ import requests
 import warnings
 from datetime import datetime
 warnings.filterwarnings("ignore")
+from langchain.embeddings import OpenAIEmbeddings
 
 class ChatGPT():
-    def __init__(self,api_key=None):
+    def __init__(self,api_key=None,model=None):
         self.api_key = api_key
+        self.model=model
+
+    def get_embed_data(query):
+        try:
+            embeddings=OpenAIEmbeddings()
+            query_vector = embeddings.embed_query(query)
+
+        except Exception as err:
+            print("error while embedding query ",err)
+            return "error while embedding query "+str(err)
 
     def chat_with_gpt(self,query,data,content):
         try:
@@ -24,7 +35,7 @@ class ChatGPT():
             print("gpt data")
             payload = {
                 # "model": "gpt-3.5-turbo-0301",
-                "model":"gpt-4-32k",
+                "model":self.model,
                 "messages": [
                         {"role": "system", "content": "Helpful HR policy assist"},
                         {"role": "system", "content": "If user is just greeting instead of asking questions related to the data, please greet the user by addressing the name in return by saying you can assist the user in getting knowledge only about different HR policies of the company like leave policy, dress policy, code of conduct, shift allowance policy, exit policy"},
@@ -52,3 +63,5 @@ class ChatGPT():
         except Exception as err:
             print("Error while getting the response from chatGPT : ",err)
             return "Error while getting the response from chatGPT : "+str(err)
+        
+

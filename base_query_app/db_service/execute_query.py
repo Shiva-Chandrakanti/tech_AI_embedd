@@ -5,6 +5,7 @@ import pandas as pd
 import numpy as np
 
 
+
 class execute_query():
 
     def __init__(self,config=None):
@@ -214,7 +215,7 @@ class execute_query():
                 raise e
         return "Success"
     
-    def insert_embeddings_into_postgres(self,embedding,conn,table_name,database):
+    def insert_embeddings_into_postgres(self,embedding,conn,table_name,database,conn_str=None):
         # PostgreSQL connection
         
         cursor = conn.cursor()
@@ -225,9 +226,9 @@ class execute_query():
         # Insert the embedding into the database
     
         cursor.execute(
-            "INSERT INTO %s.%s (content, embedding) VALUES (%s, %s)",
-            (database,table_name,'Sample content', embedding)
+            "INSERT INTO {} (item_name, embedding) VALUES ('Sample content', '{}')".format(table_name, embedding)
         )
         conn.commit()
         cursor.close()
         conn.close()
+        
