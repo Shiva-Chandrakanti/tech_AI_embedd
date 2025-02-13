@@ -30,7 +30,7 @@ class inser_data_db():
 
             embeddings=OpenAIEmbeddings()
             
-            vector_data=embeddings.embed_dcouments([t.page_content for t in texts])
+            # vector_data=embeddings.embed_dcouments([t.page_content for t in texts])
             db_details=self.config['AML_POSTGRES']
             conn_str=f"postgresql+psycopg2://{db_details['database']}:{db_details['host']}:{db_details['port']}/{db_details['database']}"
 
