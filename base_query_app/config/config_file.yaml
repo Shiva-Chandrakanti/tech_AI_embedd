@@ -1,0 +1,18 @@
+api_token:
+  api_secret_key: "*********" # open api key
+  model : '****' the open api model, user wants to use
+
+file_path:
+  file_path : '*****' # temporary file storage path
+
+AML_POSTGRES:
+  username : '***' 
+  password : '***'
+  port : '***'
+  host : '*****'
+  database : '******'
+  db_identifier : '*****' # db_type, postgres, oracle etc
+
+EMBEDIING_data: 
+  database : '******' # embedding database
+  table_name : '*****' # embedding table to store and reteieve data fro gpt query

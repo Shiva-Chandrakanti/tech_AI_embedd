@@ -19,15 +19,3 @@ class db_connect():
         except Exception as err:
             print("Unable to connect to the  database \n{}".format(err))
             return "Unable to connect to the  database \n{}".format(err)
-        
-# conn = psycopg2.connect(
-#                 user='administrator',
-#                 password='Shiva@223',
-#                 host='localhost',
-#                 port=int('5432'),
-#                 database='postgres',
-#                 # connect_timeout=31536000
-#             )
-# import pandas as pd
-# df=pd.read_sql("select * from public.items", con = conn)
-# print(df)

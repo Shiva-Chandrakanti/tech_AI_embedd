@@ -74,7 +74,10 @@ class dbServiceLauncher():
             data = execute_query.execute_query(config).insert_query(merged_df=insert_df,insert_db=insert_db,
                                                                 insert_table=insert_table,conn=checked_conn)
         elif q_type == "embed_insert":
-            data = execute_query.execute_query(config).insert_embeddings_into_postgres(embedding=embedding,conn=checked_conn)
+            
+            data = execute_query.execute_query(config).insert_embeddings_into_postgres(embedding=embedding,conn=checked_conn,database=insert_db,table_name=insert_table)
+        elif q_type=='embed_query':
+            data = execute_query.execute_query(config).select_query(query=query,conn=checked_conn)
         checked_conn.close()
         return data
 

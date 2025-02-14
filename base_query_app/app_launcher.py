@@ -1,6 +1,7 @@
 from utilities import config_reader
 from db_service import db_connect,execute_query
 from modules import insert_data
+from modules import gpt_connect
 
 
 class LaunchApp():
@@ -14,4 +15,4 @@ class LaunchApp():
         return data
 
     def get_response(self):
-        return "x"
+        data =gpt_connect.ChatGPT(api_key=self.config['api_token']['api_secret_key'],model=self.config['api_token']['model'],config=self.config,db_launch=self.db_launch)

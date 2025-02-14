@@ -1,0 +1,7 @@
+{
+    "python.testing.pytestArgs": [
+        "base_query_app"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true
+}

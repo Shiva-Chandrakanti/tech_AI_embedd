@@ -7,6 +7,10 @@ import gzip
 import sys,os
 from gevent.pywsgi import WSGIServer
 from werkzeug.exceptions import BadRequest
+from fastapi import FastAPI, Request, Response
+from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
+import uvicorn
 
 class FlaskApp():
     """
@@ -16,7 +20,7 @@ class FlaskApp():
     
     """
 
-    def __init__(self,app_name=None,port_number=None,allowed_origin=None):
+    def __init__(self,app_name=None,port_number=None,allowed_origin=None,fast_app=None):
         self.app_name = app_name
         self.port_number = port_number
         self.host = '0.0.0.0'
@@ -28,6 +32,12 @@ class FlaskApp():
             self.app_name = 'app'
         self.app = Flask(app_name)
         self.api = Api(self.app)
+
+        if fast_app is not None:
+            self.app1 = FastAPI(title=self.app_name)
+            self.app1.add_middleware(CORSMiddleware,allow_origins=["*"],allow_credentials=True,allow_methods=["*"],allow_headers=["*"] )
+        
+
         @self.app.after_request
         def after_request(response):
             response.headers.add('Access-Control-Allow-Origin', self.allowed_origin)
@@ -97,34 +107,38 @@ class FlaskApp():
                 return response
         except Exception as err:
             return "error in getter :-"+str(err)
-        
-    def getfile(self,base_path=None):
-        """
-        This function will be used to get the file from API 
-        and storage in the system.
-        """
+    
+    def getter1(self,data):
         try:
-            if base_path is None:
-                base_path = '/home/ubuntu/'
-            file = request.files.to_dict()
-            if len(file)>0:
-                file_name_list = list(file.keys())
+            if self.is_json(myjson=data) is True:
+                json_data = json.dumps(data, default=str)
+                compressed_data = gzip.compress(json_data.encode("utf-8"))
+                response = Response(content=compressed_data, media_type="application/json")
+                response.headers["Content-Length"] = str(len(compressed_data))
+                response.headers["Content-Encoding"] = "gzip"
+                return response
             else:
-                file_name_list = []     
-            response = {
-                "basepath":base_path,
-                "list_of_filename":file_name_list,
-                "all_files":file
-            }
-            return response
+                response = "Not a json"
+                return response
         except Exception as err:
-            return "Error while getting the file : "+str(err)
+            return "error in getter :-"+str(err)
+        
+        
+    
         
     def json_response(self,data):
         try:
             app_response = self.getter(data=data)
             if type(app_response) == str:
                 app_response = jsonify(message=str(app_response), category="Error", status=404)
+            return app_response
+        except Exception as err:
+            return jsonify(message="Exception occured : " + str(err), category="Error", status=404)
+    def json_response1(self,data):
+        try:
+            app_response = self.getter1(data=data)
+            if type(app_response) == str:
+                return JSONResponse(content=app_response,status_code=404)
             return app_response
         except Exception as err:
             return jsonify(message="Exception occured : " + str(err), category="Error", status=404)
@@ -144,6 +158,16 @@ class FlaskApp():
             context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
             context.load_cert_chain(certfile=certificate_file_path,keyfile=key_file_path)
         return self.app.run(host=self.host,debug=debug,port=self.port_number,ssl_context=context)
+    
+    def uvicorn_server_start(self,certificate_file_path=None,key_file_path=None):
+        if key_file_path is None:
+            context = None
+            return uvicorn.run(self.app1,port=self.port_number)
+        else:
+            # import ssl
+            # ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+            # ssl_context.load_cert_chain(certfile=certificate_file_path, keyfile=key_file_path)
+            return uvicorn.run(self.app1,port=self.port_number,ssl_keyfile=key_file_path,ssl_certfile=certificate_file_path)
     
 
 
