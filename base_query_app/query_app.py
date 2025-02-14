@@ -12,9 +12,6 @@ CONFIG_FILE_PATH = "/Users/administrator/Documents/tech_ai_embeddings/tech_AI_em
 CONFIG_FILE_NAME = 'config_file'
 CON_ENVIRONMENT = 'DEVELOPMENT'
 
-
-
-
 db_launch=db_service_launcher.dbServiceLauncher(file_path=CONFIG_FILE_PATH,file_name=CONFIG_FILE_NAME)
 
 app_launch = app_launcher.LaunchApp(db_launch=db_launch,file_name=CONFIG_FILE_NAME,file_path=CONFIG_FILE_PATH)
