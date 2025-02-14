@@ -62,15 +62,7 @@ class dbServiceLauncher():
         checked_conn = self.db_identifier()
         if q_type == "select":
             data = execute_query.execute_query(config).select_query(query=query,conn=checked_conn)
-        elif q_type == "update":
-            data = execute_query.execute_query(config).update_query(query=query,conn=checked_conn,
-                                                                    values_dict=data_dict,
-                                                                    filter_dict=condition_dict,table_name=insert_table,db_name=insert_db)
-        elif q_type == "delete":
-            data = execute_query.execute_query(config).delete_query(query=query,conn=checked_conn)
-        elif q_type == "drop":
-            data = execute_query.execute_query(config).drop_query(query=query,conn=checked_conn)
-        elif q_type == "insert":
+      
             data = execute_query.execute_query(config).insert_query(merged_df=insert_df,insert_db=insert_db,
                                                                 insert_table=insert_table,conn=checked_conn)
         elif q_type == "embed_insert":

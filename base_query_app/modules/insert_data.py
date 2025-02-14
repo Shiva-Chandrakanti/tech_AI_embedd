@@ -24,42 +24,50 @@ class inser_data_db():
             # embedding = model.encode(text)
             # return embedding
             loader = TextLoader(text,encoding='utf-8')
+            # loads the text from the given text
             documents =loader.load()
             textsplitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+            # splits the given text and based on provided chunk size, maintaning overlap
             texts=textsplitter.split_documents(documents)
-
-            embeddings=OpenAIEmbeddings()
             
+            embeddings=OpenAIEmbeddings()
+            # intilazing the embeddings
             # vector_data=embeddings.embed_dcouments([t.page_content for t in texts])
             db_details=self.config['AML_POSTGRES']
             conn_str=f"postgresql+psycopg2://{db_details['database']}:{db_details['host']}:{db_details['port']}/{db_details['database']}"
 
             inser_data=PGVector.from_documents(embedding=embeddings,documents=texts,collection_name=self.config['EMBEDIING_data']['table_name'],connection_string=conn_str)
+            # passing the embeddings and texts need to be embedded and connection to vector base.
             return {"successfully inserted"}
         except Exception as err:
             print("error while creating embeddings and inserting :",err)
             return "error while creating embeddings and inserting :"+str(err)
 
     def read_file(self,filepath):
-        extension = filepath.rsplit('.', 1)[1].lower()
+        try:
+            """the temperary file is read and converted to text"""
+            extension = filepath.rsplit('.', 1)[1].lower()
 
-        if extension == 'txt':
-            with open(filepath, 'r') as file:
-                return file.read()
+            if extension == 'txt':
+                with open(filepath, 'r') as file:
+                    return file.read()
 
-        elif extension == 'pdf':
-            with open(filepath, 'rb') as file:
-                reader = PyPDF2.PdfReader(file)
-                text = ''
-                for page in reader.pages:
-                    text += page.extract_text()
-                return text
+            elif extension == 'pdf':
+                with open(filepath, 'rb') as file:
+                    reader = PyPDF2.PdfReader(file)
+                    text = ''
+                    for page in reader.pages:
+                        text += page.extract_text()
+                    return text
 
-        elif extension == 'csv':
-            df = pd.read_csv(filepath)
-            return df.to_string()
+            elif extension == 'csv':
+                df = pd.read_csv(filepath)
+                return df.to_string()
+        except Exception  as err:
+            return "error while reading files "+str(err)
 
     def upload_file(self):
+        """ takes payload file and calls the related functions to upload file into database"""
         if 'file' not in request.files:
             return {'error': 'No file part'}
         
