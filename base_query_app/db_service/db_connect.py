@@ -6,6 +6,7 @@ class db_connect():
     def __init__(self, config):
         self.config = config
     def postgres_connector(self):
+        """connects to postgres database"""
         try:
             conn = psycopg2.connect(
                 user=self.config["username"],
