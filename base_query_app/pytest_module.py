@@ -11,7 +11,7 @@ def client():
 # Test POST request to "/query_base"
 def test_query_base(client):
     payload = {
-        "query": "What is the capital of France?"
+        "query": "What is the best movie from TFI?"
     }
     
     response = client.post('/query_base', json=payload)
@@ -20,7 +20,8 @@ def test_query_base(client):
     
     response_json = response.get_json()
     assert 'data' in response_json
-    assert isinstance(response_json['data'], dict)
+    assert response_json['data'] == 'Your answer'
+    
 
 # Test POST request to "/insert_new_data" and check for "inserted successfully"
 def test_insert_new_data(client):
